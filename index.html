@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palazzolshi - Mike Palazzola Prediction Markets</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            /* Dark Theme (default) */
+            --surface-x10: #0a0c0f;
+            --surface-x20: #14181f;
+            --surface-x30: #1b2029;
+            --surface-x40: #333333;
+            --surface-overlay: rgba(0,0,0,0.5);
+            --text-x10: rgba(255,255,255,0.9);
+            --text-x20: rgba(255,255,255,0.6);
+            --text-x30: rgba(255,255,255,0.45);
+            --fill-x30: rgba(255,255,255,0.25);
+            --fill-x40: rgba(255,255,255,0.16);
+            --fill-x50: rgba(255,255,255,0.12);
+            --fill-x60: rgba(255,255,255,0.05);
+            --brand-primary: #28cc95;
+            --brand-secondary: #003221;
+            --green-x10: #39bf5b;
+            --green-x20: rgba(57,191,91,0.16);
+            --red-x10: #ff409f;
+            --red-x20: rgba(255,64,159,0.16);
+            --blue-x10: #36b0d9;
+            --blue-x20: rgba(54,176,217,0.16);
+            --purple-x10: #b266ff;
+            --purple-x20: rgba(178,102,255,0.16);
+            --border: rgba(255,255,255,0.12);
+            --border-strong: rgba(255,255,255,0.16);
+            --shadow: rgba(0,0,0,0.4);
+        }
+
+        [data-theme="light"] {
+            --surface-x10: #f5f7fa;
+            --surface-x20: #ffffff;
+            --surface-x30: #f0f2f5;
+            --surface-x40: #e4e6ea;
+            --surface-overlay: rgba(0,0,0,0.35);
+            --text-x10: rgba(0,0,0,0.88);
+            --text-x20: rgba(0,0,0,0.55);
+            --text-x30: rgba(0,0,0,0.38);
+            --fill-x30: rgba(0,0,0,0.12);
+            --fill-x40: rgba(0,0,0,0.08);
+            --fill-x50: rgba(0,0,0,0.06);
+            --fill-x60: rgba(0,0,0,0.03);
+            --brand-primary: #1aa173;
+            --brand-secondary: #e6f9f1;
+            --green-x10: #2da84e;
+            --green-x20: rgba(45,168,78,0.12);
+            --red-x10: #e0367a;
+            --red-x20: rgba(224,54,122,0.12);
+            --blue-x10: #2a8fb5;
+            --blue-x20: rgba(42,143,181,0.12);
+            --purple-x10: #9240e0;
+            --purple-x20: rgba(146,64,224,0.12);
+            --border: rgba(0,0,0,0.1);
+            --border-strong: rgba(0,0,0,0.15);
+            --shadow: rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--surface-x10);
+            color: var(--text-x10);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        a { color: inherit; text-decoration: none; }
+        button { font-family: inherit; }
+
+        /* ========== NAV ========== */
+        nav {
+            background: var(--surface-x20);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: background 0.3s;
+        }
+        .nav-left { display: flex; align-items: center; gap: 28px; }
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--brand-primary);
+            cursor: pointer;
+        }
+        .nav-links { display: flex; gap: 4px; }
+        .nav-links a {
+            color: var(--text-x20);
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.15s;
+            cursor: pointer;
+        }
+        .nav-links a:hover { color: var(--text-x10); background: var(--fill-x60); }
+        .nav-links a.active { color: var(--text-x10); background: var(--fill-x50); }
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+        .balance-badge {
+            background: var(--surface-x30);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--brand-primary);
+        }
+        .balance-badge span { color: var(--text-x30); font-weight: 400; margin-right: 4px; }
+        .btn-pill {
+            padding: 8px 18px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.15s;
+        }
+        .btn-primary { background: var(--brand-primary); color: rgba(0,0,0,0.9); }
+        .btn-primary:hover { filter: brightness(1.1); transform: scale(1.02); }
+        .btn-ghost {
+            background: transparent;
+            color: var(--brand-primary);
+            border: 1px solid var(--border-strong);
+        }
+        .btn-ghost:hover { background: var(--fill-x60); }
+        .avatar-btn {
+            width: 34px; height: 34px; border-radius: 50%;
+            overflow: hidden; cursor: pointer; border: 2px solid var(--brand-primary);
+            background: var(--surface-x30);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .avatar-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        /* Theme toggle */
+        .theme-toggle {
+            background: var(--fill-x50);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            width: 34px; height: 34px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 16px;
+            transition: all 0.2s;
+        }
+        .theme-toggle:hover { background: var(--fill-x30); transform: rotate(30deg); }
+
+        /* ========== PAGES ========== */
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* ========== TICKER ========== */
+        .ticker-bar {
+            background: var(--surface-x20);
+            border-bottom: 1px solid var(--border);
+            padding: 6px 0;
+            overflow: hidden;
+        }
+        .ticker-content {
+            display: flex; gap: 48px;
+            animation: ticker 35s linear infinite;
+            white-space: nowrap;
+        }
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .ticker-item { font-size: 12px; color: var(--text-x30); display: flex; align-items: center; gap: 6px; }
+        .ticker-item .tp { font-weight: 600; }
+        .ticker-item .tp.up { color: var(--green-x10); }
+        .ticker-item .tp.down { color: var(--red-x10); }
+
+        /* ========== HERO ========== */
+        .hero {
+            background: linear-gradient(135deg, rgba(40,204,149,0.08), rgba(54,176,217,0.08));
+            border-bottom: 1px solid var(--border);
+            padding: 28px 24px;
+            text-align: center;
+        }
+        .hero h1 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+        .hero p { color: var(--text-x20); font-size: 15px; }
+        .hero .sub { margin-top: 8px; font-size: 12px; color: var(--text-x30); font-style: italic; }
+
+        /* ========== CATEGORIES ========== */
+        .categories-bar {
+            padding: 12px 24px;
+            display: flex; gap: 8px;
+            overflow-x: auto;
+            border-bottom: 1px solid var(--border);
+        }
+        .cat-btn {
+            background: var(--fill-x60);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 6px 14px;
+            color: var(--text-x20);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+        .cat-btn:hover { color: var(--text-x10); background: var(--fill-x50); }
+        .cat-btn.active { background: var(--brand-primary); color: rgba(0,0,0,0.9); border-color: var(--brand-primary); }
+
+        /* ========== MAIN CONTAINER ========== */
+        .main { max-width: 1200px; margin: 0 auto; padding: 20px 24px; }
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 14px;
+        }
+        .section-header h2 { font-size: 18px; font-weight: 700; }
+        .badge-live {
+            background: var(--red-x10); color: white;
+            font-size: 10px; font-weight: 700;
+            padding: 3px 8px; border-radius: 4px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+        .create-market-btn {
+            background: var(--surface-x30);
+            border: 1px dashed var(--border-strong);
+            border-radius: 8px;
+            padding: 8px 16px;
+            color: var(--brand-primary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .create-market-btn:hover { background: var(--fill-x50); border-style: solid; }
+
+        /* ========== MARKET CARDS ========== */
+        .markets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 12px; margin-bottom: 32px;
+        }
+        .market-card {
+            background: var(--surface-x20);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        .market-card:hover {
+            border-color: var(--fill-x30);
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+        .market-card.user-created { border-left: 3px solid var(--purple-x10); }
+        .card-header { padding: 14px 14px 10px; }
+        .card-category {
+            font-size: 10px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.5px; color: var(--blue-x10); margin-bottom: 6px;
+        }
+        .card-title { font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 6px; }
+        .card-meta { display: flex; gap: 14px; font-size: 11px; color: var(--text-x30); }
+        .card-meta .vol { color: var(--green-x10); }
+
+        /* ========== OUTCOMES ========== */
+        .outcomes { padding: 0 14px 14px; display: flex; flex-wrap: wrap; gap: 6px; }
+        .outcome-btn {
+            flex: 1; min-width: 70px;
+            background: var(--surface-x10);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 6px;
+            cursor: pointer; text-align: center;
+            transition: all 0.12s;
+            position: relative; overflow: hidden;
+        }
+        .outcome-btn::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+            height: 2px; transform: scaleX(0); transition: transform 0.15s;
+        }
+        .outcome-btn:hover { border-color: var(--fill-x30); }
+        .outcome-btn:hover::after { transform: scaleX(1); }
+        .outcome-btn.yes-btn:hover { border-color: var(--green-x10); background: var(--green-x20); }
+        .outcome-btn.yes-btn::after { background: var(--green-x10); }
+        .outcome-btn.no-btn:hover { border-color: var(--red-x10); background: var(--red-x20); }
+        .outcome-btn.no-btn::after { background: var(--red-x10); }
+        .outcome-label { font-size: 11px; color: var(--text-x20); margin-bottom: 3px; font-weight: 500; }
+        .outcome-price { font-size: 18px; font-weight: 700; }
+        .outcome-btn.yes-btn .outcome-price { color: var(--green-x10); }
+        .outcome-btn.no-btn .outcome-price { color: var(--red-x10); }
+        .outcome-change { font-size: 10px; margin-top: 1px; font-weight: 500; }
+        .outcome-change.up { color: var(--green-x10); }
+        .outcome-change.down { color: var(--red-x10); }
+
+        /* Multi outcomes */
+        .outcomes.multi { flex-direction: column; gap: 4px; }
+        .outcomes.multi .outcome-btn {
+            display: flex; justify-content: space-between; align-items: center;
+            text-align: left; padding: 8px 12px;
+        }
+        .outcomes.multi .outcome-btn:hover { border-color: var(--blue-x10); background: var(--blue-x20); }
+        .outcomes.multi .outcome-btn::after { background: var(--blue-x10); }
+        .outcomes.multi .outcome-label { margin-bottom: 0; font-size: 12px; }
+        .outcomes.multi .outcome-right { display: flex; align-items: center; gap: 10px; }
+        .outcomes.multi .outcome-price { font-size: 15px; color: var(--text-x10); }
+        .outcomes.multi .outcome-bar { width: 50px; height: 4px; background: var(--surface-x10); border-radius: 2px; overflow: hidden; }
+        .outcomes.multi .outcome-bar-fill { height: 100%; border-radius: 2px; background: var(--blue-x10); transition: width 0.4s; }
+
+        /* ========== MODAL (shared) ========== */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--surface-overlay);
+            backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; pointer-events: none;
+            transition: opacity 0.2s;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal {
+            background: var(--surface-x30);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 28px;
+            max-width: 440px; width: 92%;
+            transform: scale(0.92) translateY(16px);
+            transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.3s;
+        }
+        .modal-overlay.active .modal { transform: scale(1) translateY(0); }
+        .modal-close {
+            position: absolute; top: 12px; right: 14px;
+            background: none; border: none; color: var(--text-x30);
+            font-size: 20px; cursor: pointer; line-height: 1;
+        }
+        .modal-close:hover { color: var(--text-x10); }
+
+        /* Bet confirm modal */
+        .bet-modal { text-align: center; position: relative; }
+        .modal-mike-img {
+            width: 100px; height: 100px; border-radius: 50%;
+            object-fit: cover; object-position: top;
+            border: 3px solid var(--brand-primary);
+            margin-bottom: 16px;
+            animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @keyframes popIn { 0%{transform:scale(0) rotate(-10deg);opacity:0} 100%{transform:scale(1) rotate(0);opacity:1} }
+        .bet-modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+        .bet-modal .det { color: var(--text-x20); font-size: 13px; margin-bottom: 6px; line-height: 1.5; }
+        .bet-modal .amt { font-size: 26px; font-weight: 800; color: var(--brand-primary); margin-bottom: 20px; }
+        .bet-modal .amt .unit { font-size: 14px; color: var(--text-x20); font-weight: 500; }
+        .modal-btns { display: flex; gap: 10px; }
+        .modal-btns .btn-pill { flex: 1; padding: 11px; font-size: 14px; }
+        .btn-cancel { background: var(--surface-x10); color: var(--text-x20); border: 1px solid var(--border); }
+        .btn-cancel:hover { background: var(--fill-x50); }
+        .btn-confirm { background: var(--brand-primary); color: rgba(0,0,0,0.9); }
+        .btn-confirm:hover { filter: brightness(1.1); }
+
+        /* ========== LOGIN MODAL ========== */
+        .login-modal { position: relative; }
+        .login-modal h3 { font-size: 20px; font-weight: 700; margin-bottom: 4px; text-align: center; }
+        .login-modal .login-sub { text-align: center; color: var(--text-x20); font-size: 13px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 12px; color: var(--text-x20); margin-bottom: 4px; font-weight: 500; }
+        .form-input {
+            width: 100%; padding: 10px 12px;
+            background: var(--surface-x10); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--text-x10); font-size: 14px;
+            outline: none; transition: border 0.15s;
+        }
+        .form-input:focus { border-color: var(--brand-primary); }
+        .form-input::placeholder { color: var(--text-x30); }
+        .login-btn { width: 100%; margin-top: 4px; padding: 11px; }
+        .login-toggle { text-align: center; margin-top: 14px; font-size: 13px; color: var(--text-x20); }
+        .login-toggle a { color: var(--brand-primary); cursor: pointer; font-weight: 500; }
+
+        /* ========== CREATE MARKET MODAL ========== */
+        .create-modal { position: relative; max-width: 520px; }
+        .create-modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+        .outcome-inputs { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+        .outcome-row { display: flex; gap: 8px; align-items: center; }
+        .outcome-row .form-input { flex: 1; }
+        .outcome-row .form-input.price-input { max-width: 80px; }
+        .remove-outcome-btn {
+            background: none; border: none; color: var(--red-x10); cursor: pointer;
+            font-size: 18px; padding: 4px; line-height: 1;
+        }
+        .add-outcome-btn {
+            background: none; border: 1px dashed var(--border-strong);
+            border-radius: 8px; padding: 8px;
+            color: var(--text-x20); font-size: 13px;
+            cursor: pointer; width: 100%; margin-bottom: 14px;
+            transition: all 0.15s;
+        }
+        .add-outcome-btn:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+        .form-row { display: flex; gap: 10px; }
+        .form-row .form-group { flex: 1; }
+        .form-select {
+            width: 100%; padding: 10px 12px;
+            background: var(--surface-x10); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--text-x10); font-size: 14px;
+            outline: none; cursor: pointer;
+        }
+
+        /* ========== LEADERBOARD PAGE ========== */
+        .lb-table { width: 100%; border-collapse: collapse; }
+        .lb-table th {
+            text-align: left; padding: 10px 14px;
+            font-size: 11px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.5px; color: var(--text-x30);
+            border-bottom: 1px solid var(--border);
+        }
+        .lb-table td {
+            padding: 12px 14px; font-size: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .lb-table tr:hover td { background: var(--fill-x60); }
+        .lb-rank {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 14px;
+        }
+        .lb-rank.gold { background: rgba(255,215,0,0.15); color: #ffd700; }
+        .lb-rank.silver { background: rgba(192,192,192,0.15); color: #c0c0c0; }
+        .lb-rank.bronze { background: rgba(205,127,50,0.15); color: #cd7f32; }
+        .lb-rank.normal { background: var(--fill-x50); color: var(--text-x20); }
+        .lb-user { display: flex; align-items: center; gap: 10px; }
+        .lb-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--surface-x30);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 12px; color: var(--text-x20);
+        }
+        .lb-pnl.positive { color: var(--green-x10); }
+        .lb-pnl.negative { color: var(--red-x10); }
+        .lb-you { background: var(--green-x20) !important; }
+        .lb-you td { background: var(--green-x20) !important; }
+
+        /* ========== PORTFOLIO PAGE ========== */
+        .portfolio-header {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 12px; margin-bottom: 24px;
+        }
+        .pf-stat {
+            background: var(--surface-x20);
+            border: 1px solid var(--border);
+            border-radius: 10px; padding: 16px;
+        }
+        .pf-stat .label { font-size: 11px; color: var(--text-x30); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .pf-stat .value { font-size: 22px; font-weight: 700; }
+        .pf-stat .value.green { color: var(--green-x10); }
+        .pf-stat .value.red { color: var(--red-x10); }
+        .pf-stat .value.brand { color: var(--brand-primary); }
+        .positions-table { width: 100%; border-collapse: collapse; }
+        .positions-table th {
+            text-align: left; padding: 10px 14px;
+            font-size: 11px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.5px; color: var(--text-x30);
+            border-bottom: 1px solid var(--border);
+        }
+        .positions-table td {
+            padding: 12px 14px; font-size: 13px;
+            border-bottom: 1px solid var(--border);
+        }
+        .positions-table tr:hover td { background: var(--fill-x60); }
+        .pos-side.yes { color: var(--green-x10); font-weight: 600; }
+        .pos-side.no { color: var(--red-x10); font-weight: 600; }
+        .pos-pnl.positive { color: var(--green-x10); }
+        .pos-pnl.negative { color: var(--red-x10); }
+        .empty-state {
+            text-align: center; padding: 60px 20px;
+            color: var(--text-x30); font-size: 14px;
+        }
+        .empty-state .es-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.3; }
+
+        /* ========== FAQ PAGE ========== */
+        .faq-container { max-width: 800px; margin: 0 auto; }
+        .faq-hero {
+            text-align: center;
+            padding: 40px 20px 20px;
+        }
+        .faq-hero h1 { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+        .faq-hero p { color: var(--text-x20); font-size: 15px; }
+        .faq-item {
+            background: var(--surface-x20);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        .faq-item:hover { border-color: var(--fill-x30); }
+        .faq-question {
+            padding: 16px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+        .faq-question:hover { color: var(--brand-primary); }
+        .faq-arrow {
+            font-size: 12px;
+            transition: transform 0.2s;
+            color: var(--text-x30);
+        }
+        .faq-item.open .faq-arrow { transform: rotate(180deg); }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            padding: 0 20px;
+            color: var(--text-x20);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        .faq-item.open .faq-answer {
+            max-height: 300px;
+            padding: 0 20px 16px;
+        }
+        .faq-disclaimer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: var(--surface-x20);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 13px;
+            color: var(--text-x30);
+            font-style: italic;
+        }
+
+        /* ========== TOAST ========== */
+        .toast {
+            position: fixed; bottom: 20px; right: 20px;
+            background: var(--brand-primary); color: rgba(0,0,0,0.9);
+            padding: 12px 20px; border-radius: 10px;
+            font-weight: 600; font-size: 13px;
+            z-index: 1100;
+            transform: translateY(80px); opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            box-shadow: 0 8px 24px rgba(40,204,149,0.25);
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+
+        /* ========== FOOTER ========== */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 20px; text-align: center;
+            color: var(--text-x30); font-size: 11px;
+            margin-top: 32px;
+        }
+        footer a { color: var(--brand-primary); cursor: pointer; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .markets-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+            .portfolio-header { grid-template-columns: repeat(2, 1fr); }
+            .hero h1 { font-size: 20px; }
+            .mobile-nav { display: flex !important; }
+        }
+
+        /* Mobile bottom nav */
+        .mobile-nav {
+            display: none;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--surface-x20);
+            border-top: 1px solid var(--border);
+            padding: 8px 0;
+            z-index: 100;
+            justify-content: space-around;
+        }
+        .mobile-nav button {
+            background: none; border: none;
+            color: var(--text-x30); font-size: 10px;
+            display: flex; flex-direction: column;
+            align-items: center; gap: 2px;
+            cursor: pointer; padding: 4px 12px;
+        }
+        .mobile-nav button.active { color: var(--brand-primary); }
+        .mobile-nav button span { font-size: 20px; }
+
+        @media (max-width: 768px) {
+            footer { margin-bottom: 56px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ==================== NAV ==================== -->
+<nav>
+    <div class="nav-left">
+        <div class="logo" onclick="switchPage('markets')">Palazzolshi</div>
+        <div class="nav-links">
+            <a onclick="switchPage('markets')" class="active" data-page="markets">Markets</a>
+            <a onclick="switchPage('portfolio')" data-page="portfolio">Portfolio</a>
+            <a onclick="switchPage('leaderboard')" data-page="leaderboard">Leaderboard</a>
+            <a onclick="switchPage('faq')" data-page="faq">FAQ</a>
+        </div>
+    </div>
+    <div class="nav-right" id="navRight">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode" id="themeBtn">&#9790;</button>
+        <button class="btn-pill btn-ghost" onclick="openLogin('login')">Log in</button>
+        <button class="btn-pill btn-primary" onclick="openLogin('signup')">Sign up</button>
+    </div>
+    <div class="nav-right" id="navLoggedIn" style="display:none">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode" id="themeBtnLogged">&#9790;</button>
+        <div class="balance-badge"><span>Balance:</span> <span id="navBalance">1,000</span> M$</div>
+        <div class="avatar-btn" onclick="logout()" title="Log out">
+            <img src="./images/mike-headshot.jpeg" alt="avatar" id="navAvatar" onerror="this.style.display='none';this.parentElement.textContent='MP';">
+        </div>
+    </div>
+</nav>
+
+<!-- ==================== MOBILE NAV ==================== -->
+<div class="mobile-nav">
+    <button class="active" onclick="switchPage('markets')" data-page="markets"><span>&#128200;</span>Markets</button>
+    <button onclick="switchPage('portfolio')" data-page="portfolio"><span>&#128188;</span>Portfolio</button>
+    <button onclick="switchPage('leaderboard')" data-page="leaderboard"><span>&#127942;</span>Board</button>
+    <button onclick="switchPage('faq')" data-page="faq"><span>&#10067;</span>FAQ</button>
+</div>
+
+<!-- ==================== TICKER ==================== -->
+<div class="ticker-bar">
+    <div class="ticker-content" id="ticker"></div>
+</div>
+
+<!-- ==================== MARKETS PAGE ==================== -->
+<div class="page active" id="page-markets">
+    <div class="hero">
+        <h1>Predict Mike Palazzola's Next Move</h1>
+        <p>The world's premier prediction market for all things Mike.</p>
+        <div class="sub">Powered by Mike Bucks (M$) &mdash; The Official Currency of Harlem</div>
+    </div>
+
+    <div class="categories-bar">
+        <button class="cat-btn active" onclick="filterCat('all', this)">All Markets</button>
+        <button class="cat-btn" onclick="filterCat('social', this)">Social Media</button>
+        <button class="cat-btn" onclick="filterCat('career', this)">Career</button>
+        <button class="cat-btn" onclick="filterCat('lifestyle', this)">Lifestyle</button>
+        <button class="cat-btn" onclick="filterCat('politics', this)">Politics</button>
+        <button class="cat-btn" onclick="filterCat('hot', this)">Hot Takes</button>
+    </div>
+
+    <div class="main">
+        <div class="section-header">
+            <h2>Featured Markets</h2>
+            <div style="display:flex;gap:10px;align-items:center">
+                <button class="create-market-btn" onclick="openCreateMarket()">+ Create Market</button>
+                <span class="badge-live">LIVE</span>
+            </div>
+        </div>
+        <div class="markets-grid" id="marketsGrid"></div>
+    </div>
+</div>
+
+<!-- ==================== PORTFOLIO PAGE ==================== -->
+<div class="page" id="page-portfolio">
+    <div class="main">
+        <h2 style="margin-bottom:16px">Portfolio</h2>
+        <div class="portfolio-header">
+            <div class="pf-stat">
+                <div class="label">Balance</div>
+                <div class="value brand" id="pfBalance">1,000 M$</div>
+            </div>
+            <div class="pf-stat">
+                <div class="label">Invested</div>
+                <div class="value" id="pfInvested">0 M$</div>
+            </div>
+            <div class="pf-stat">
+                <div class="label">Total P&L</div>
+                <div class="value green" id="pfPnl">+0 M$</div>
+            </div>
+            <div class="pf-stat">
+                <div class="label">Open Positions</div>
+                <div class="value" id="pfPositions">0</div>
+            </div>
+        </div>
+
+        <h3 style="margin-bottom:12px">Open Positions</h3>
+        <div id="positionsContainer">
+            <div class="empty-state" id="emptyPositions">
+                <div class="es-icon">&#128202;</div>
+                <p>No positions yet. Place a bet to get started!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== LEADERBOARD PAGE ==================== -->
+<div class="page" id="page-leaderboard">
+    <div class="main">
+        <h2 style="margin-bottom:16px">Leaderboard</h2>
+        <p style="color:var(--text-x20);font-size:13px;margin-bottom:16px">Top Mike Predictors &mdash; ranked by P&L</p>
+        <table class="lb-table" id="lbTable">
+            <thead>
+                <tr>
+                    <th style="width:50px">Rank</th>
+                    <th>Trader</th>
+                    <th style="text-align:right">Total Bets</th>
+                    <th style="text-align:right">Win Rate</th>
+                    <th style="text-align:right">P&L</th>
+                </tr>
+            </thead>
+            <tbody id="lbBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ==================== FAQ PAGE ==================== -->
+<div class="page" id="page-faq">
+    <div class="main">
+        <div class="faq-container">
+            <div class="faq-hero">
+                <h1>Frequently Asked Questions</h1>
+                <p>Everything you never needed to know about betting on Mike's life</p>
+            </div>
+            <div id="faqList"></div>
+            <div class="faq-disclaimer">
+                This FAQ was written under extreme duress and/or the influence of Mike's IG stories.<br>
+                Palazzolshi Legal Department (which is just Mike's mom) reserves the right to update these at any time.
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== BET CONFIRM MODAL ==================== -->
+<div class="modal-overlay" id="betModal">
+    <div class="modal bet-modal">
+        <button class="modal-close" onclick="closeBetModal()">&times;</button>
+        <img src="./images/mike-headshot.jpeg" class="modal-mike-img" id="betImg" alt="Mike" onerror="this.style.display='none';">
+        <h3 id="betTitle">Confirm Your Bet</h3>
+        <div class="det" id="betDetails"></div>
+        <div class="amt" id="betAmount"></div>
+        <div class="modal-btns">
+            <button class="btn-pill btn-cancel" onclick="closeBetModal()">Cancel</button>
+            <button class="btn-pill btn-confirm" onclick="confirmBet()">Place Bet</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== LOGIN MODAL ==================== -->
+<div class="modal-overlay" id="loginModal">
+    <div class="modal login-modal">
+        <button class="modal-close" onclick="closeLogin()">&times;</button>
+        <h3 id="loginTitle">Log in to Palazzolshi</h3>
+        <div class="login-sub" id="loginSub">Trade on Mike's life decisions</div>
+        <div class="form-group">
+            <label>Username</label>
+            <input class="form-input" id="loginUser" placeholder="mikelover69" autocomplete="off">
+        </div>
+        <div class="form-group" id="emailGroup" style="display:none">
+            <label>Email</label>
+            <input class="form-input" id="loginEmail" placeholder="you@example.com" type="email">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input class="form-input" id="loginPass" placeholder="mike123 (we don't check)" type="password">
+        </div>
+        <button class="btn-pill btn-primary login-btn" onclick="doLogin()">Log in</button>
+        <div class="login-toggle">
+            <span id="loginToggleText">Don't have an account?</span>
+            <a id="loginToggleLink" onclick="toggleLoginMode()">Sign up</a>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== CREATE MARKET MODAL ==================== -->
+<div class="modal-overlay" id="createModal">
+    <div class="modal create-modal">
+        <button class="modal-close" onclick="closeCreateMarket()">&times;</button>
+        <h3>Create a New Market</h3>
+        <div class="form-group">
+            <label>Market Question</label>
+            <input class="form-input" id="cmTitle" placeholder="Will Mike do something absurd?">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Category</label>
+                <select class="form-select" id="cmCategory">
+                    <option value="social">Social Media</option>
+                    <option value="career">Career</option>
+                    <option value="lifestyle">Lifestyle</option>
+                    <option value="politics">Politics</option>
+                    <option value="hot">Hot Takes</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Expiry Date</label>
+                <input class="form-input" id="cmExpiry" type="date">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Market Type</label>
+            <select class="form-select" id="cmType" onchange="toggleCreateOutcomes()">
+                <option value="binary">Yes / No</option>
+                <option value="multi">Multiple Outcomes</option>
+            </select>
+        </div>
+        <div id="binaryPriceGroup" class="form-group">
+            <label>Initial Yes Price (0.01 - 0.99)</label>
+            <input class="form-input" id="cmYesPrice" placeholder="0.50" type="number" step="0.01" min="0.01" max="0.99">
+        </div>
+        <div id="multiOutcomesGroup" style="display:none">
+            <label style="display:block;font-size:12px;color:var(--text-x20);margin-bottom:6px;font-weight:500">Outcomes & Prices</label>
+            <div class="outcome-inputs" id="cmOutcomes">
+                <div class="outcome-row">
+                    <input class="form-input" placeholder="Outcome name">
+                    <input class="form-input price-input" placeholder="$0.XX" type="number" step="0.01" min="0.01" max="0.99">
+                    <button class="remove-outcome-btn" onclick="this.parentElement.remove()" title="Remove">&times;</button>
+                </div>
+                <div class="outcome-row">
+                    <input class="form-input" placeholder="Outcome name">
+                    <input class="form-input price-input" placeholder="$0.XX" type="number" step="0.01" min="0.01" max="0.99">
+                    <button class="remove-outcome-btn" onclick="this.parentElement.remove()" title="Remove">&times;</button>
+                </div>
+            </div>
+            <button class="add-outcome-btn" onclick="addOutcomeRow()">+ Add Outcome</button>
+        </div>
+        <button class="btn-pill btn-primary login-btn" onclick="submitMarket()">Create Market</button>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- FOOTER -->
+<footer>
+    <p>&copy; 2026 Palazzolshi, Inc. All rights reserved. Not affiliated with Kalshi, JPMorgan, or Mike's IG.</p>
+    <p style="margin-top:3px">Mike Bucks have no monetary value. <a onclick="switchPage('faq')">FAQ</a> &middot; <a href="#">Terms</a> &middot; <a href="#">Privacy</a> &middot; <a href="#">Contact Mike's Mom</a></p>
+</footer>
+
+<script>
+// ==================== DATA ====================
+const catLabels = { social: 'Social Media', career: 'Career', lifestyle: 'Lifestyle', politics: 'Politics', hot: 'Hot Takes' };
+
+let markets = [
+    { id:1, category:'social', title:'How Many Private IG Stories Will Mike Make This Week? (Mar 29 - Apr 4)', volume:2847, expiry:'Apr 4, 2026', type:'multi', userCreated:false,
+      outcomes:[ {label:'1-3 Stories',price:0.04,change:-0.02}, {label:'3-5 Stories',price:0.06,change:0.01}, {label:'5-7 Stories',price:0.15,change:0.03}, {label:'7-10 Stories',price:0.25,change:0.05}, {label:'10+ Stories',price:0.50,change:0.08} ] },
+    { id:2, category:'social', title:'Will Mike Make a Racial Comment on His Story Today?', volume:14201, expiry:'Today', type:'binary', userCreated:false,
+      outcomes:[ {label:'Yes',price:0.97,change:0.02}, {label:'No',price:0.03,change:-0.02} ] },
+    { id:3, category:'lifestyle', title:'Will Mike Be IG Official with a Partner by End of Q2?', volume:8493, expiry:'Jun 30, 2026', type:'binary', userCreated:false,
+      outcomes:[ {label:'Yes',price:0.01,change:0}, {label:'No',price:0.99,change:0} ] },
+    { id:4, category:'politics', title:'Will Mike Run Again for Office in 2028?', volume:5112, expiry:'Dec 31, 2028', type:'binary', userCreated:false,
+      outcomes:[ {label:'Yes',price:0.23,change:0.04}, {label:'No',price:0.77,change:-0.04} ] },
+    { id:5, category:'hot', title:'Will Mike Announce the Strait of Hormuz Is Open by May 31, 2026?', volume:11350, expiry:'May 31, 2026', type:'binary', userCreated:false,
+      outcomes:[ {label:'Yes',price:0.59,change:0.12}, {label:'No',price:0.41,change:-0.12} ] },
+    { id:6, category:'career', title:'Will Mike Leave JPM Before Bitcoin Reaches $100K?', volume:7620, expiry:'Open', type:'binary', userCreated:false,
+      outcomes:[ {label:'Yes',price:0.21,change:-0.03}, {label:'No',price:0.79,change:0.03} ] },
+    { id:7, category:'career', title:'Will Mike Leave Big Nutty in 2026?', volume:3290, expiry:'Dec 31, 2026', type:'binary', userCreated:false,
+      outcomes:[ {label:'Yes',price:0.05,change:0.01}, {label:'No',price:0.95,change:-0.01} ] },
+    { id:8, category:'lifestyle', title:'How Many Raves Will Mike Attend This Weekend?', volume:6744, expiry:'Apr 6, 2026', type:'multi', userCreated:false,
+      outcomes:[ {label:'1 Rave',price:0.30,change:-0.05}, {label:'2 Raves',price:0.12,change:0.02}, {label:'3 Raves',price:0.48,change:0.10}, {label:'4 Raves',price:0.10,change:-0.03} ] },
+];
+
+let nextId = 9;
+let user = null;
+let currentBet = null;
+let activeCat = 'all';
+let loginMode = 'login';
+const mikeImgs = ['./images/mike-headshot.jpeg', './images/mike-casual.JPG'];
+let mikeIdx = 0;
+
+const leaderboardData = [
+    { name:'BigNuttyKing', bets:247, winRate:0.73, pnl:4820 },
+    { name:'HormuzWatcher', bets:189, winRate:0.68, pnl:3105 },
+    { name:'RavePredictor', bets:312, winRate:0.61, pnl:2340 },
+    { name:'JPMInsider', bets:156, winRate:0.70, pnl:1890 },
+    { name:'IGStoryBot', bets:421, winRate:0.55, pnl:1205 },
+    { name:'MikesBarber', bets:98, winRate:0.72, pnl:980 },
+    { name:'PalazzolasMom', bets:67, winRate:0.82, pnl:870 },
+    { name:'Q2Believer', bets:203, winRate:0.49, pnl:-340 },
+    { name:'BitcoinBro2028', bets:145, winRate:0.44, pnl:-720 },
+    { name:'NeverMike', bets:88, winRate:0.32, pnl:-1560 },
+];
+
+const faqData = [
+    {
+        q: "What is Palazzolshi?",
+        a: "Palazzolshi is the world's first and only prediction market dedicated entirely to betting on the life decisions of one man: Mike Palazzola. Think Kalshi, but instead of predicting Fed rate decisions, you're predicting whether Mike will post another IG story at 2am from a rave in Bushwick. We're basically the NYSE but for Mike's chaos."
+    },
+    {
+        q: "What are Mike Bucks?",
+        a: "Mike Bucks (M$) are the official currency of Harlem. They have absolutely zero monetary value and cannot be exchanged for US dollars, Bitcoin, gift cards, or even a chopped cheese from the bodega. However, they CAN be used to flex on your friends in the leaderboard, which, let's be honest, is worth more than actual money."
+    },
+    {
+        q: "Is this real money?",
+        a: "Absolutely not. If you're reading this thinking you can cash out your Mike Bucks, please close this tab and call a financial advisor. Or Mike's mom. She'll set you straight."
+    },
+    {
+        q: "How do the odds work?",
+        a: "Just like real prediction markets! Each contract trades between $0.01 and $0.99. If you buy \"Yes\" at $0.23, you're saying there's a 23% chance that thing happens. If it does, you get $1.00 back. If not, you get nothing. Except it's all Mike Bucks, so either way you get nothing real. But the emotional gains? Priceless."
+    },
+    {
+        q: "Who is Mike Palazzola?",
+        a: "Mike is a man of mystery, contradiction, and questionable IG stories. He allegedly works at JPM, is involved with something called \"Big Nutty,\" has political aspirations, strong opinions about the Strait of Hormuz, and attends an statistically improbable number of raves. We don't fully understand him either, but that's what makes the prediction market so volatile."
+    },
+    {
+        q: "Why is 'Will Mike Make a Racial Comment on His Story Today' trading at $0.97?",
+        a: "The market has spoken. We don't make the odds; thousands of degenerate Mike-watchers do. The 3% of people betting \"No\" are what we in the industry call \"optimists.\" God bless them."
+    },
+    {
+        q: "What is Big Nutty?",
+        a: "Nobody really knows. Some say it's a business venture. Some say it's a state of mind. Some say it's a WhatsApp group chat that got out of hand. The only thing we know for certain is that the market gives Mike a 5% chance of leaving it in 2026, which tells you everything you need to know about Big Nutty's gravitational pull."
+    },
+    {
+        q: "Can I create my own market about Mike?",
+        a: "Yes! Hit that \"+ Create Market\" button and go wild. Want to bet on whether Mike will wear the same North Face puffer for the 47th consecutive day? Go for it. Whether he'll accidentally go live at 3am? The people demand it. All user-created markets get the fancy purple border because you're special."
+    },
+    {
+        q: "What is the Strait of Hormuz and why does Mike care?",
+        a: "The Strait of Hormuz is a critical waterway between Iran and Oman through which roughly 20% of the world's oil passes. Why Mike has positioned himself as the unofficial announcer of its operational status is a question that philosophers, geopolitical analysts, and his friends have been asking for some time. The market currently trades at 59% Yes that he'll announce it's open by May 2026."
+    },
+    {
+        q: "How is the leaderboard calculated?",
+        a: "Rankings are based on total P&L in Mike Bucks. Currently, BigNuttyKing leads with over 4,800 M$ in profit, which is impressive for fake money. PalazzolasMom has an 82% win rate because moms always know. NeverMike is in last place because betting against Mike is always a losing strategy."
+    },
+    {
+        q: "Will Mike ever find out about this?",
+        a: "He already knows. The \"Racial Comment\" market volume of 14,201 M$ speaks for itself. He is the market."
+    },
+    {
+        q: "Is Mike single?",
+        a: "According to the \"IG Official with a Partner by End of Q2\" market trading at $0.01... the market sentiment is extremely bearish on this one. But hey, there's always Q3."
+    },
+    {
+        q: "Can I use Palazzolshi for tax write-offs?",
+        a: "We are not financial advisors, tax attorneys, or functional adults. Mike Bucks are not recognized by the IRS, SEC, CFTC, or any governing body on Earth. If your accountant asks about Palazzolshi, you've already made a wrong turn somewhere."
+    },
+    {
+        q: "How many raves can one man attend in a single weekend?",
+        a: "According to our market, the most likely answer is 3 (trading at $0.48). Four is given a 10% probability, which accounts for the scenario where Mike achieves a state of continuous raving that transcends the normal spacetime limitations of a 48-hour weekend. Scientists call this \"The Palazzola Threshold.\""
+    },
+    {
+        q: "I lost all my Mike Bucks. What do I do?",
+        a: "Sign out. Sign back in. You get 1,000 fresh Mike Bucks every time because we believe in second chances and we literally cannot stop you. This is also our monetary policy: unlimited quantitative easing of Mike Bucks. Jerome Powell could never."
+    }
+];
+
+// ==================== THEME ====================
+function toggleTheme() {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('palazzolshi-theme', next);
+    updateThemeIcons(next);
+}
+
+function updateThemeIcons(theme) {
+    const icon = theme === 'light' ? '\u2600' : '\u263E';
+    document.getElementById('themeBtn').innerHTML = icon;
+    document.getElementById('themeBtnLogged').innerHTML = icon;
+}
+
+// Load saved theme
+(function() {
+    const saved = localStorage.getItem('palazzolshi-theme');
+    if (saved) {
+        document.documentElement.setAttribute('data-theme', saved);
+        updateThemeIcons(saved);
+    }
+})();
+
+// ==================== PAGE SWITCHING ====================
+function switchPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    document.querySelectorAll('.nav-links a').forEach(a => {
+        a.classList.toggle('active', a.dataset.page === page);
+    });
+    document.querySelectorAll('.mobile-nav button').forEach(b => {
+        b.classList.toggle('active', b.dataset.page === page);
+    });
+    if (page === 'leaderboard') renderLeaderboard();
+    if (page === 'portfolio') renderPortfolio();
+    if (page === 'faq') renderFAQ();
+    window.scrollTo(0, 0);
+}
+
+// ==================== RENDER MARKETS ====================
+function renderMarkets() {
+    const grid = document.getElementById('marketsGrid');
+    grid.innerHTML = '';
+    const filtered = activeCat === 'all' ? markets : markets.filter(m => m.category === activeCat);
+
+    filtered.forEach(m => {
+        const card = document.createElement('div');
+        card.className = 'market-card' + (m.userCreated ? ' user-created' : '');
+        let html = '';
+
+        if (m.type === 'binary') {
+            html = '<div class="outcomes">';
+            m.outcomes.forEach(o => {
+                const cls = o.label === 'Yes' ? 'yes-btn' : 'no-btn';
+                const cc = o.change > 0 ? 'up' : o.change < 0 ? 'down' : '';
+                const cs = o.change > 0 ? '+' + (o.change*100).toFixed(0) + '%' : o.change < 0 ? (o.change*100).toFixed(0) + '%' : '\u2014';
+                html += '<button class="outcome-btn ' + cls + '" onclick="placeBet(' + m.id + ',\'' + o.label.replace(/'/g, "\\'") + '\',' + o.price + ')">' +
+                    '<div class="outcome-label">' + o.label + '</div>' +
+                    '<div class="outcome-price">' + cents(o.price) + '</div>' +
+                    '<div class="outcome-change ' + cc + '">' + cs + '</div>' +
+                '</button>';
+            });
+            html += '</div>';
+        } else {
+            html = '<div class="outcomes multi">';
+            m.outcomes.forEach(o => {
+                const pct = Math.round(o.price * 100);
+                const cc = o.change > 0 ? 'up' : o.change < 0 ? 'down' : '';
+                const cs = o.change > 0 ? '+' + (o.change*100).toFixed(0) + '%' : o.change < 0 ? (o.change*100).toFixed(0) + '%' : '';
+                html += '<button class="outcome-btn" onclick="placeBet(' + m.id + ',\'' + o.label.replace(/'/g, "\\'") + '\',' + o.price + ')">' +
+                    '<div><div class="outcome-label">' + o.label + '</div></div>' +
+                    '<div class="outcome-right">' +
+                        '<span class="outcome-change ' + cc + '">' + cs + '</span>' +
+                        '<div class="outcome-bar"><div class="outcome-bar-fill" style="width:' + pct + '%"></div></div>' +
+                        '<div class="outcome-price">' + cents(o.price) + '</div>' +
+                    '</div>' +
+                '</button>';
+            });
+            html += '</div>';
+        }
+
+        card.innerHTML =
+            '<div class="card-header">' +
+                '<div class="card-category">' + (catLabels[m.category] || m.category) + '</div>' +
+                '<div class="card-title">' + m.title + '</div>' +
+                '<div class="card-meta">' +
+                    '<span class="vol">Vol: ' + m.volume.toLocaleString() + ' M$</span>' +
+                    '<span>Expires: ' + m.expiry + '</span>' +
+                '</div>' +
+            '</div>' + html;
+        grid.appendChild(card);
+    });
+}
+
+function cents(p) { return '$' + p.toFixed(2); }
+
+function filterCat(cat, btn) {
+    activeCat = cat;
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderMarkets();
+}
+
+// ==================== BET FLOW ====================
+function placeBet(marketId, outcome, price) {
+    if (!user) { openLogin('login'); return; }
+
+    const market = markets.find(m => m.id === marketId);
+    currentBet = { market: market, outcome: outcome, price: price };
+
+    mikeIdx = (mikeIdx + 1) % mikeImgs.length;
+    const betImg = document.getElementById('betImg');
+    betImg.src = mikeImgs[mikeIdx];
+    betImg.style.display = 'block';
+    document.getElementById('betTitle').textContent = 'Confirm Your Bet';
+    document.getElementById('betDetails').innerHTML = '<strong>' + market.title + '</strong><br>Your pick: <strong>' + outcome + '</strong> @ ' + cents(price);
+
+    const cost = Math.max(1, Math.round(price * 100));
+    document.getElementById('betAmount').innerHTML = cost + ' <span class="unit">Mike Bucks</span>';
+
+    document.getElementById('betModal').classList.add('active');
+}
+
+function closeBetModal() {
+    document.getElementById('betModal').classList.remove('active');
+    currentBet = null;
+}
+
+function confirmBet() {
+    if (!currentBet || !user) return;
+    const cost = Math.max(1, Math.round(currentBet.price * 100));
+    if (user.balance < cost) { showToast('Not enough Mike Bucks!'); closeBetModal(); return; }
+
+    user.balance -= cost;
+    updateNavBalance();
+
+    user.positions.push({
+        marketId: currentBet.market.id,
+        marketTitle: currentBet.market.title,
+        outcome: currentBet.outcome,
+        entryPrice: currentBet.price,
+        shares: 1,
+        timestamp: Date.now()
+    });
+
+    // Move market
+    var m = markets.find(function(x) { return x.id === currentBet.market.id; });
+    m.outcomes.forEach(function(o) {
+        if (o.label === currentBet.outcome) {
+            var bump = Math.random() * 0.03 + 0.01;
+            o.change = bump; o.price = Math.min(0.99, o.price + bump);
+        } else {
+            var drop = Math.random() * 0.02 + 0.005;
+            o.change = -drop; o.price = Math.max(0.01, o.price - drop);
+        }
+    });
+    m.volume += Math.floor(Math.random() * 50 + 10);
+
+    // Update leaderboard for user
+    var userLb = leaderboardData.find(function(l) { return l.name === user.username; });
+    if (userLb) { userLb.bets++; userLb.pnl += Math.floor(Math.random() * 30 - 10); }
+
+    var betOutcome = currentBet.outcome;
+    var betTitle = currentBet.market.title.substring(0, 35);
+    closeBetModal();
+    renderMarkets();
+    showToast('Bet placed! ' + betOutcome + ' on "' + betTitle + '..."');
+}
+
+document.getElementById('betModal').addEventListener('click', function(e) { if (e.target === e.currentTarget) closeBetModal(); });
+
+// ==================== LOGIN ====================
+function openLogin(mode) {
+    loginMode = mode;
+    var isSignup = mode === 'signup';
+    document.getElementById('loginTitle').textContent = isSignup ? 'Sign up for Palazzolshi' : 'Log in to Palazzolshi';
+    document.getElementById('loginSub').textContent = isSignup ? 'Start trading Mike Bucks today' : "Trade on Mike's life decisions";
+    document.getElementById('emailGroup').style.display = isSignup ? 'block' : 'none';
+    document.querySelector('.login-btn').textContent = isSignup ? 'Create Account' : 'Log in';
+    document.getElementById('loginToggleText').textContent = isSignup ? 'Already have an account?' : "Don't have an account?";
+    document.getElementById('loginToggleLink').textContent = isSignup ? 'Log in' : 'Sign up';
+    document.getElementById('loginModal').classList.add('active');
+}
+
+function closeLogin() { document.getElementById('loginModal').classList.remove('active'); }
+
+function toggleLoginMode() {
+    openLogin(loginMode === 'login' ? 'signup' : 'login');
+}
+
+function doLogin() {
+    var username = document.getElementById('loginUser').value.trim();
+    if (!username) { showToast('Enter a username!'); return; }
+
+    user = {
+        username: username,
+        balance: 1000,
+        positions: []
+    };
+
+    if (!leaderboardData.find(function(l) { return l.name === username; })) {
+        leaderboardData.push({ name: username, bets: 0, winRate: 0.50, pnl: 0 });
+    }
+
+    closeLogin();
+    document.getElementById('navRight').style.display = 'none';
+    document.getElementById('navLoggedIn').style.display = 'flex';
+    updateNavBalance();
+    showToast('Welcome, ' + username + '! You\'ve been credited 1,000 Mike Bucks');
+}
+
+function logout() {
+    user = null;
+    document.getElementById('navRight').style.display = 'flex';
+    document.getElementById('navLoggedIn').style.display = 'none';
+    showToast('Logged out. Mike will miss you.');
+}
+
+function updateNavBalance() {
+    if (!user) return;
+    document.getElementById('navBalance').textContent = user.balance.toLocaleString();
+    document.getElementById('pfBalance').textContent = user.balance.toLocaleString() + ' M$';
+}
+
+document.getElementById('loginModal').addEventListener('click', function(e) { if (e.target === e.currentTarget) closeLogin(); });
+document.getElementById('loginUser').addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
+document.getElementById('loginPass').addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
+
+// ==================== CREATE MARKET ====================
+function openCreateMarket() {
+    if (!user) { openLogin('login'); return; }
+    document.getElementById('createModal').classList.add('active');
+}
+
+function closeCreateMarket() { document.getElementById('createModal').classList.remove('active'); }
+
+function toggleCreateOutcomes() {
+    var isBinary = document.getElementById('cmType').value === 'binary';
+    document.getElementById('binaryPriceGroup').style.display = isBinary ? 'block' : 'none';
+    document.getElementById('multiOutcomesGroup').style.display = isBinary ? 'none' : 'block';
+}
+
+function addOutcomeRow() {
+    var container = document.getElementById('cmOutcomes');
+    var row = document.createElement('div');
+    row.className = 'outcome-row';
+    row.innerHTML =
+        '<input class="form-input" placeholder="Outcome name">' +
+        '<input class="form-input price-input" placeholder="$0.XX" type="number" step="0.01" min="0.01" max="0.99">' +
+        '<button class="remove-outcome-btn" onclick="this.parentElement.remove()" title="Remove">&times;</button>';
+    container.appendChild(row);
+}
+
+function submitMarket() {
+    var title = document.getElementById('cmTitle').value.trim();
+    if (!title) { showToast('Enter a market question!'); return; }
+
+    var category = document.getElementById('cmCategory').value;
+    var expiry = document.getElementById('cmExpiry').value || 'TBD';
+    var type = document.getElementById('cmType').value;
+    var outcomes = [];
+
+    if (type === 'binary') {
+        var yp = parseFloat(document.getElementById('cmYesPrice').value) || 0.50;
+        yp = Math.max(0.01, Math.min(0.99, yp));
+        outcomes = [
+            { label: 'Yes', price: yp, change: 0 },
+            { label: 'No', price: +(1 - yp).toFixed(2), change: 0 }
+        ];
+    } else {
+        var rows = document.querySelectorAll('#cmOutcomes .outcome-row');
+        rows.forEach(function(row) {
+            var inputs = row.querySelectorAll('input');
+            var name = inputs[0].value.trim();
+            var price = parseFloat(inputs[1].value) || 0.25;
+            price = Math.max(0.01, Math.min(0.99, price));
+            if (name) outcomes.push({ label: name, price: price, change: 0 });
+        });
+        if (outcomes.length < 2) { showToast('Add at least 2 outcomes!'); return; }
+    }
+
+    var expiryFormatted = expiry !== 'TBD' ? new Date(expiry).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBD';
+
+    markets.unshift({
+        id: nextId++,
+        category: category,
+        title: title,
+        volume: Math.floor(Math.random() * 500 + 50),
+        expiry: expiryFormatted,
+        type: type,
+        userCreated: true,
+        outcomes: outcomes
+    });
+
+    closeCreateMarket();
+    renderMarkets();
+    showToast('Market created: "' + title.substring(0, 40) + '"');
+
+    document.getElementById('cmTitle').value = '';
+    document.getElementById('cmYesPrice').value = '';
+}
+
+document.getElementById('createModal').addEventListener('click', function(e) { if (e.target === e.currentTarget) closeCreateMarket(); });
+
+// ==================== PORTFOLIO ====================
+function renderPortfolio() {
+    if (!user) {
+        document.getElementById('positionsContainer').innerHTML = '<div class="empty-state"><div class="es-icon">&#128274;</div><p>Log in to view your portfolio</p></div>';
+        return;
+    }
+
+    updateNavBalance();
+
+    var totalInvested = 0;
+    var totalPnl = 0;
+    var positions = user.positions;
+
+    document.getElementById('pfPositions').textContent = positions.length;
+
+    if (positions.length === 0) {
+        document.getElementById('positionsContainer').innerHTML = '<div class="empty-state"><div class="es-icon">&#128202;</div><p>No positions yet. Place a bet to get started!</p></div>';
+        document.getElementById('pfInvested').textContent = '0 M$';
+        document.getElementById('pfPnl').textContent = '+0 M$';
+        document.getElementById('pfPnl').className = 'value green';
+        return;
+    }
+
+    var tableHTML = '<table class="positions-table">' +
+        '<thead><tr>' +
+            '<th>Market</th><th>Side</th><th>Entry</th><th>Current</th><th style="text-align:right">P&L</th>' +
+        '</tr></thead><tbody>';
+
+    positions.forEach(function(pos) {
+        var market = markets.find(function(m) { return m.id === pos.marketId; });
+        var currentPrice = pos.entryPrice;
+        if (market) {
+            var o = market.outcomes.find(function(x) { return x.label === pos.outcome; });
+            if (o) currentPrice = o.price;
+        }
+
+        var cost = Math.max(1, Math.round(pos.entryPrice * 100));
+        var currentVal = Math.round(currentPrice * 100);
+        var pnl = currentVal - cost;
+        totalInvested += cost;
+        totalPnl += pnl;
+
+        var isYes = pos.outcome === 'Yes';
+        var sideClass = isYes ? 'yes' : (pos.outcome === 'No' ? 'no' : '');
+        var pnlClass = pnl >= 0 ? 'positive' : 'negative';
+        var pnlStr = pnl >= 0 ? '+' + pnl : '' + pnl;
+
+        tableHTML += '<tr>' +
+            '<td style="max-width:200px">' + pos.marketTitle.substring(0, 50) + (pos.marketTitle.length > 50 ? '...' : '') + '</td>' +
+            '<td><span class="pos-side ' + sideClass + '">' + pos.outcome + '</span></td>' +
+            '<td>' + cents(pos.entryPrice) + '</td>' +
+            '<td>' + cents(currentPrice) + '</td>' +
+            '<td style="text-align:right"><span class="pos-pnl ' + pnlClass + '">' + pnlStr + ' M$</span></td>' +
+        '</tr>';
+    });
+
+    tableHTML += '</tbody></table>';
+    document.getElementById('positionsContainer').innerHTML = tableHTML;
+    document.getElementById('pfInvested').textContent = totalInvested.toLocaleString() + ' M$';
+    document.getElementById('pfPnl').textContent = (totalPnl >= 0 ? '+' : '') + totalPnl + ' M$';
+    document.getElementById('pfPnl').className = 'value ' + (totalPnl >= 0 ? 'green' : 'red');
+}
+
+// ==================== LEADERBOARD ====================
+function renderLeaderboard() {
+    var sorted = leaderboardData.slice().sort(function(a, b) { return b.pnl - a.pnl; });
+    var body = document.getElementById('lbBody');
+    body.innerHTML = '';
+
+    sorted.forEach(function(entry, i) {
+        var rank = i + 1;
+        var rankClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : 'normal';
+        var pnlClass = entry.pnl >= 0 ? 'positive' : 'negative';
+        var pnlStr = entry.pnl >= 0 ? '+' + entry.pnl.toLocaleString() : entry.pnl.toLocaleString();
+        var isUser = user && entry.name === user.username;
+        var initials = entry.name.substring(0, 2).toUpperCase();
+
+        var tr = document.createElement('tr');
+        if (isUser) tr.className = 'lb-you';
+        tr.innerHTML =
+            '<td><div class="lb-rank ' + rankClass + '">' + rank + '</div></td>' +
+            '<td><div class="lb-user"><div class="lb-avatar">' + initials + '</div><span>' + entry.name + (isUser ? ' (you)' : '') + '</span></div></td>' +
+            '<td style="text-align:right">' + entry.bets + '</td>' +
+            '<td style="text-align:right">' + (entry.winRate * 100).toFixed(0) + '%</td>' +
+            '<td style="text-align:right"><span class="lb-pnl ' + pnlClass + '">' + pnlStr + ' M$</span></td>';
+        body.appendChild(tr);
+    });
+}
+
+// ==================== FAQ ====================
+function renderFAQ() {
+    var list = document.getElementById('faqList');
+    if (list.children.length > 0) return; // already rendered
+
+    faqData.forEach(function(item, i) {
+        var div = document.createElement('div');
+        div.className = 'faq-item';
+        div.innerHTML =
+            '<div class="faq-question" onclick="toggleFaq(this)">' +
+                '<span>' + item.q + '</span>' +
+                '<span class="faq-arrow">&#9660;</span>' +
+            '</div>' +
+            '<div class="faq-answer">' + item.a + '</div>';
+        list.appendChild(div);
+    });
+}
+
+function toggleFaq(el) {
+    var item = el.parentElement;
+    item.classList.toggle('open');
+}
+
+// ==================== TICKER ====================
+function initTicker() {
+    var data = [
+        { l:'IG Stories (10+)', p:'$0.50', up:true },
+        { l:'Racial Comment Today', p:'$0.97', up:true },
+        { l:'IG Official Q2', p:'$0.01', up:false },
+        { l:'Run for Office 2028', p:'$0.23', up:true },
+        { l:'Hormuz Open by May', p:'$0.59', up:true },
+        { l:'Leave JPM pre-BTC 100k', p:'$0.21', up:false },
+        { l:'Leave Big Nutty 2026', p:'$0.05', up:false },
+        { l:'3 Raves Weekend', p:'$0.48', up:true },
+    ];
+    var t = document.getElementById('ticker');
+    var items = data.concat(data);
+    t.innerHTML = items.map(function(d) {
+        return '<span class="ticker-item">' + d.l + ' <span class="tp ' + (d.up ? 'up' : 'down') + '">' + d.p + ' ' + (d.up ? '\u2191' : '\u2193') + '</span></span>';
+    }).join('');
+}
+
+// ==================== TOAST ====================
+function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
+
+// ==================== LIVE MARKET SIM ====================
+setInterval(function() {
+    markets.forEach(function(m) {
+        if (Math.random() > 0.6) {
+            var idx = Math.floor(Math.random() * m.outcomes.length);
+            var jitter = (Math.random() - 0.5) * 0.04;
+            m.outcomes[idx].price = Math.max(0.01, Math.min(0.99, m.outcomes[idx].price + jitter));
+            m.outcomes[idx].change = jitter;
+        }
+    });
+    leaderboardData.forEach(function(l) {
+        if (Math.random() > 0.7) {
+            l.pnl += Math.floor(Math.random() * 20 - 8);
+            if (Math.random() > 0.8) l.bets++;
+        }
+    });
+    renderMarkets();
+}, 5000);
+
+// ==================== INIT ====================
+renderMarkets();
+initTicker();
+renderLeaderboard();
+</script>
+</body>
+</html>
